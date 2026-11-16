@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KICKS // VAULT - Sneaker Blog & Release Radar</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0a0a0a',
+                        cardbg: '#141414',
+                        accent: '#ff3366',
+                        neoncyan: '#00f0ff',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            color: #f3f4f6;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #262626;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff3366;
+        }
+        .glow-effect {
+            box-shadow: 0 0 25px rgba(255, 51, 102, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-darkbg text-gray-100 min-h-screen flex flex-col selection:bg-accent selection:text-white">
+
+    <!-- Toast Notification Banner -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Sticky Navigation Bar -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-darkbg/80 border-b border-neutral-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="#" class="flex items-center gap-2 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-orange-500 flex items-center justify-center text-white font-black text-xl shadow-lg group-hover:scale-105 transition-transform">
+                    KV
+                </div>
+                <div>
+                    <span class="text-xl font-black tracking-wider uppercase bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">Kicks<span class="text-accent">Vault</span></span>
+                    <span class="block text-[10px] tracking-widest text-neutral-400 uppercase font-semibold">Culture & Drops</span>
+                </div>
+            </a>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center gap-7 text-sm font-medium">
+                <a href="#releases" class="text-neutral-300 hover:text-accent transition-colors">Release Calendar</a>
+                <a href="#blog" class="text-neutral-300 hover:text-accent transition-colors">Stories & Reviews</a>
+                <a href="#" onclick="openSubmitModal(event)" class="text-accent hover:text-accent/80 transition-colors flex items-center gap-1.5 font-bold">
+                    <i class="fa-solid fa-plus-circle"></i> Submit a Drop
+                </a>
+                <a href="#wishlist" onclick="openWishlistModal(event)" class="relative text-neutral-300 hover:text-accent transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-bookmark"></i> Wishlist 
+                    <span id="wishlist-badge" class="bg-accent text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+                </a>
+                <a href="#" onclick="openAdminLoginModal(event)" class="px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-xs font-bold text-neutral-300 hover:text-white transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-lock text-accent"></i> Admin
+                </a>
+            </nav>
+
+            <!-- Search & Actions -->
+            <div class="flex items-center gap-3">
+                <div class="relative hidden sm:block">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="global-search" placeholder="Search sneakers..." 
+                        class="bg-neutral-900 border border-neutral-800 text-sm rounded-xl pl-9 pr-4 py-2 w-40 lg:w-56 focus:outline-none focus:border-accent transition-all text-neutral-200 placeholder-neutral-500">
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden text-neutral-300 hover:text-white p-2">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Nav Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden bg-neutral-900 border-b border-neutral-800 px-4 pt-3 pb-5 space-y-3">
+            <a href="#releases" class="block text-neutral-300 hover:text-accent py-1 font-medium">Release Calendar</a>
+            <a href="#blog" class="block text-neutral-300 hover:text-accent py-1 font-medium">Stories & Reviews</a>
+            <a href="#" onclick="openSubmitModal(event); toggleMobileMenu();" class="block text-accent font-bold py-1 flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle"></i> Submit a Drop
+            </a>
+            <a href="#wishlist" onclick="openWishlistModal(event); toggleMobileMenu();" class="block text-neutral-300 hover:text-accent py-1 font-medium flex items-center justify-between">
+                <span>Wishlist</span>
+                <span id="mobile-wishlist-badge" class="bg-accent text-white text-xs px-2 py-0.5 rounded-full">0</span>
+            </a>
+            <a href="#" onclick="openAdminLoginModal(event); toggleMobileMenu();" class="block text-neutral-300 hover:text-white py-1 font-medium flex items-center gap-2">
+                <i class="fa-solid fa-lock text-accent"></i> Admin Panel
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <!-- Hero Section: Featured Drop -->
+        <section id="trending" class="relative overflow-hidden py-12 lg:py-20 border-b border-neutral-800 bg-gradient-to-b from-neutral-900/40 to-darkbg">
+            <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ff3366_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
+            
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    <div class="lg:col-span-7 space-y-6">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/30 text-accent text-xs font-semibold uppercase tracking-wider">
+                            <span class="w-2 h-2 rounded-full bg-accent animate-ping"></span>
+                            Featured Spotlight Drop
+                        </div>
+                        <h1 class="text-4xl sm:text-6xl font-black tracking-tight uppercase leading-none">
+                            Travis Scott x <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-accent to-orange-400">Air Jordan 1 Low OG</span> <br>'Canary'
+                        </h1>
+                        <p class="text-neutral-400 text-base sm:text-lg max-w-xl">
+                            The definitive streetwear collaboration returns with vibrant racing gold accents atop premium tumbled white leather and signature reverse swoosh detailing.
+                        </p>
+
+                        <!-- Countdown Timer Box -->
+                        <div class="p-5 rounded-2xl bg-cardbg border border-neutral-800 glow-effect max-w-md">
+                            <div class="text-xs uppercase tracking-widest text-neutral-400 mb-3 font-bold flex items-center justify-between">
+                                <span>Global Drop Countdown</span>
+                                <span class="text-accent">SNKRS Exclusive</span>
+                            </div>
+                            <div class="grid grid-cols-4 gap-3 text-center">
+                                <div class="bg-neutral-900 p-2.5 rounded-xl border border-neutral-800">
+                                    <span id="days" class="block text-2xl font-black text-white">04</span>
+                                    <span class="text-[10px] uppercase text-neutral-500 tracking-wider font-medium">Days</span>
+                                </div>
+                                <div class="bg-neutral-900 p-2.5 rounded-xl border border-neutral-800">
+                                    <span id="hours" class="block text-2xl font-black text-white">18</span>
+                                    <span class="text-[10px] uppercase text-neutral-500 tracking-wider font-medium">Hours</span>
+                                </div>
+                                <div class="bg-neutral-900 p-2.5 rounded-xl border border-neutral-800">
+                                    <span id="minutes" class="block text-2xl font-black text-white">32</span>
+                                    <span class="text-[10px] uppercase text-neutral-500 tracking-wider font-medium">Mins</span>
+                                </div>
+                                <div class="bg-neutral-900 p-2.5 rounded-xl border border-neutral-800">
+                                    <span id="seconds" class="block text-2xl font-black text-white">15</span>
+                                    <span class="text-[10px] uppercase text-neutral-500 tracking-wider font-medium">Secs</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-4 pt-2">
+                            <button onclick="notifyDrop('Travis Scott x Air Jordan 1 Low', '$150')" class="px-8 py-3.5 rounded-xl bg-accent hover:bg-accent/90 text-white font-bold transition-all shadow-lg shadow-accent/25 flex items-center gap-2 group">
+                                <i class="fa-solid fa-bell group-hover:rotate-12 transition-transform"></i> Notify Me for Drop
+                            </button>
+                            <button onclick="toggleWishlist('Travis Scott x Air Jordan 1 Low', '$150', 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&auto=format&fit=crop')" class="px-6 py-3.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-800 font-semibold transition-all flex items-center gap-2">
+                                <i class="fa-regular fa-bookmark"></i> Save to Wishlist
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 relative">
+                        <div class="absolute -inset-1 rounded-3xl bg-gradient-to-r from-accent to-cyan-500 opacity-30 blur-xl"></div>
+                        <div class="relative rounded-3xl overflow-hidden border border-neutral-800 bg-neutral-900 shadow-2xl">
+                            <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&auto=format&fit=crop" 
+                                 alt="Travis Scott Jordan 1" 
+                                 class="w-full h-[380px] sm:h-[450px] object-cover hover:scale-105 transition-transform duration-700"
+                                 onerror="this.src='https://placehold.co/600x400/141414/ff3366?text=Sneaker+Drop'">
+                            <div class="absolute top-4 right-4 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-neutral-800 text-xs font-bold text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-tag text-accent"></i> $150 USD
+                            </div>
+                            <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black via-black/70 to-transparent">
+                                <span class="text-xs uppercase font-bold tracking-widest text-accent">Release Date: Nov 28, 2026</span>
+                                <h3 class="text-xl font-bold text-white mt-1">SKU: DM7866-162</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Release Calendar Section -->
+        <section id="releases" class="py-16 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+                <div>
+                    <div class="text-accent text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-days"></i> Upcoming Release Radar
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-black uppercase tracking-tight">Sneaker Release Calendar</h2>
+                </div>
+                
+                <!-- Category Filters -->
+                <div class="flex flex-wrap items-center gap-2" id="filter-container">
+                    <button onclick="filterReleases('all')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-accent text-white shadow-md shadow-accent/20" data-filter="all">All Releases</button>
+                    <button onclick="filterReleases('Nike Collabs')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-800" data-filter="Nike Collabs">Nike Collabs</button>
+                    <button onclick="filterReleases('Jordan Retros')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-800" data-filter="Jordan Retros">Jordan Retros</button>
+                    <button onclick="filterReleases('New Balance')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-800" data-filter="New Balance">New Balance</button>
+                    <button onclick="filterReleases('Adidas')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-800" data-filter="Adidas">Adidas</button>
+                    <button onclick="filterReleases('Basketball')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-800" data-filter="Basketball">Basketball (US/CN)</button>
+                </div>
+            </div>
+
+            <!-- Releases Grid -->
+            <div id="releases-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Javascript injects release cards here -->
+            </div>
+        </section>
+
+        <!-- Blog & Articles Feed Section -->
+        <section id="blog" class="py-16 lg:py-24 border-t border-neutral-800 bg-neutral-900/30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+                    <div>
+                        <div class="text-cyan-400 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-newspaper"></i> Editorial & Reviews
+                        </div>
+                        <h2 class="text-3xl sm:text-4xl font-black uppercase tracking-tight">Latest Stories & News</h2>
+                    </div>
+                    <p class="text-neutral-400 text-sm max-w-md">
+                        Deep-dives into Chinese and American basketball shoe performance tech, high-heat retro releases, and designer sneaker collaborations.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Blog Card 1 -->
+                    <article class="bg-cardbg rounded-2xl border border-neutral-800 overflow-hidden group flex flex-col justify-between hover:border-neutral-700 transition-all">
+                        <div>
+                            <div class="relative overflow-hidden aspect-video">
+                                <img src="https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=600&auto=format&fit=crop" 
+                                     alt="Basketball Shoes" 
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                     onerror="this.src='https://placehold.co/600x400/141414/00f0ff?text=Hoops'">
+                                <span class="absolute top-3 left-3 bg-black/70 backdrop-blur-md text-cyan-400 text-[10px] font-bold px-3 py-1 rounded-full border border-neutral-800 uppercase tracking-wider">
+                                    Performance Review
+                                </span>
+                            </div>
+                            <div class="p-6">
+                                <div class="flex items-center gap-3 text-xs text-neutral-400 mb-2">
+                                    <span><i class="fa-regular fa-calendar"></i> Nov 15, 2026</span>
+                                    <span>•</span>
+                                    <span><i class="fa-regular fa-clock"></i> 5 min read</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors line-clamp-2">
+                                    Li-Ning Way of Wade 12 vs Anta KAI 3: The Ultimate Chinese Hoops Showdown
+                                    </h3>
+                                <p class="text-neutral-400 text-sm mt-3 line-clamp-3">
+                                    We test traction, carbon-fiber plates, and BOOM cushioning on indoor hardwood to see which flagship signature model comes out on top.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="px-6 pb-6 pt-0">
+                            <button onclick="readArticle('Way of Wade vs Kai')" class="text-sm font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-2 group-hover:translate-x-1 transition-transform">
+                                Read Full Article <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </article>
+
+                    <!-- Blog Card 2 -->
+                    <article class="bg-cardbg rounded-2xl border border-neutral-800 overflow-hidden group flex flex-col justify-between hover:border-neutral-700 transition-all">
+                        <div>
+                            <div class="relative overflow-hidden aspect-video">
+                                <img src="https://images.unsplash.com/photo-1552346154-21d32810aba3?w=600&auto=format&fit=crop" 
+                                     alt="Jordan Retros" 
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                     onerror="this.src='https://placehold.co/600x400/141414/ff3366?text=Retros'">
+                                <span class="absolute top-3 left-3 bg-black/70 backdrop-blur-md text-accent text-[10px] font-bold px-3 py-1 rounded-full border border-neutral-800 uppercase tracking-wider">
+                                    Retro History
+                                </span>
+                            </div>
+                            <div class="p-6">
+                                <div class="flex items-center gap-3 text-xs text-neutral-400 mb-2">
+                                    <span><i class="fa-regular fa-calendar"></i> Nov 12, 2026</span>
+                                    <span>•</span>
+                                    <span><i class="fa-regular fa-clock"></i> 4 min read</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-white group-hover:text-accent transition-colors line-clamp-2">
+                                    Why Jordan Brand's 'Reimagined' Series is Transforming the Collector Market
+                                </h3>
+                                <p class="text-neutral-400 text-sm mt-3 line-clamp-3">
+                                    From cracked leather finishes on the Jordan 3 to aged midsoles on the Jordan 4, exploring Nike's shift toward vintage aesthetics.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="px-6 pb-6 pt-0">
+                            <button onclick="readArticle('Jordan Reimagined Series')" class="text-sm font-bold text-accent hover:text-accent/80 flex items-center gap-2 group-hover:translate-x-1 transition-transform">
+                                Read Full Article <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </article>
+
+                    <!-- Blog Card 3 -->
+                    <article class="bg-cardbg rounded-2xl border border-neutral-800 overflow-hidden group flex flex-col justify-between hover:border-neutral-700 transition-all">
+                        <div>
+                            <div class="relative overflow-hidden aspect-video">
+                                <img src="https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=600&auto=format&fit=crop" 
+                                     alt="New Balance & Adidas" 
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                     onerror="this.src='https://placehold.co/600x400/141414/00f0ff?text=Collabs'">
+                                <span class="absolute top-3 left-3 bg-black/70 backdrop-blur-md text-yellow-400 text-[10px] font-bold px-3 py-1 rounded-full border border-neutral-800 uppercase tracking-wider">
+                                    Collab Spotlight
+                                </span>
+                            </div>
+                            <div class="p-6">
+                                <div class="flex items-center gap-3 text-xs text-neutral-400 mb-2">
+                                    <span><i class="fa-regular fa-calendar"></i> Nov 09, 2026</span>
+                                    <span>•</span>
+                                    <span><i class="fa-regular fa-clock"></i> 6 min read</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-white group-hover:text-yellow-400 transition-colors line-clamp-2">
+                                    New Balance Made in USA: How Teddy Santis Redefined Premium Everyday Wear
+                                    </h3>
+                                <p class="text-neutral-400 text-sm mt-3 line-clamp-3">
+                                    A retrospective look at the 990 series and how rich pigskin suede and neutral palettes conquered global fashion weeks.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="px-6 pb-6 pt-0">
+                            <button onclick="readArticle('New Balance Teddy Santis')" class="text-sm font-bold text-yellow-400 hover:text-yellow-300 flex items-center gap-2 group-hover:translate-x-1 transition-transform">
+                                Read Full Article <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Wishlist Modal -->
+    <div id="wishlist-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-cardbg border border-neutral-800 rounded-3xl max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-neutral-800 flex items-center justify-between">
+                <h3 class="text-xl font-bold uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-bookmark text-accent"></i> Your Sneaker Wishlist
+                </h3>
+                <button onclick="closeWishlistModal()" class="text-neutral-400 hover:text-white p-2 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="wishlist-items-container" class="p-6 overflow-y-auto space-y-4 flex-grow">
+                <!-- Populated via JS -->
+            </div>
+            <div class="p-6 border-t border-neutral-800 bg-neutral-900/50 flex items-center justify-between">
+                <span id="wishlist-count-text" class="text-xs text-neutral-400 font-medium">0 items saved</span>
+                <button onclick="closeWishlistModal()" class="px-5 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-bold transition-all">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit a Drop Modal (User Submission Form) -->
+    <div id="submit-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-cardbg border border-neutral-800 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-neutral-800 flex items-center justify-between">
+                <h3 class="text-xl font-bold uppercase flex items-center gap-2 text-white">
+                    <i class="fa-solid fa-circle-plus text-accent"></i> Submit a Sneaker Drop
+                </h3>
+                <button onclick="closeSubmitModal()" class="text-neutral-400 hover:text-white p-2 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="handleUserSubmission(event)" class="p-6 overflow-y-auto space-y-4 flex-grow">
+                <p class="text-xs text-neutral-400">
+                    Spotted an upcoming leak or release? Send it to our editorial desk. Once reviewed by our admins, it will appear live on the calendar!
+                </p>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Sneaker Title / Model *</label>
+                    <input type="text" id="sub-name" placeholder="e.g., Nike Dunk Low 'Reverse Curry'" required
+                        class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-accent">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Category *</label>
+                        <select id="sub-category" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-accent">
+                            <option value="Nike Collabs">Nike Collabs</option>
+                            <option value="Jordan Retros">Jordan Retros</option>
+                            <option value="New Balance">New Balance</option>
+                            <option value="Adidas">Adidas</option>
+                            <option value="Basketball">Basketball (US/CN)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Estimated Price *</label>
+                        <input type="text" id="sub-price" placeholder="e.g., $160" required
+                            class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-accent">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Release Date *</label>
+                    <input type="text" id="sub-date" placeholder="e.g., Dec 18, 2026" required
+                        class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Image URL (Unsplash/Wikimedia) *</label>
+                    <input type="url" id="sub-image" placeholder="https://images.unsplash.com/..." required
+                        class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Badge Tag</label>
+                    <input type="text" id="sub-badge" placeholder="e.g., Leak, Hot Drop, PE" value="Pending Drop"
+                        class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-accent">
+                </div>
+                <div class="pt-2">
+                    <button type="submit" class="w-full py-3.5 rounded-xl bg-accent hover:bg-accent/90 text-white font-bold text-sm shadow-lg shadow-accent/20 transition-all">
+                        Submit Drop for Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-cardbg border border-neutral-800 rounded-3xl max-w-md w-full shadow-2xl overflow-hidden p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-neutral-800 pb-4">
+                <h3 class="text-lg font-bold uppercase text-white flex items-center gap-2">
+                    <i class="fa-solid fa-lock text-accent"></i> Admin Portal Login
+                </h3>
+                <button onclick="closeAdminLoginModal()" class="text-neutral-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <p class="text-xs text-neutral-400">
+                Enter the admin PIN or password to manage user submissions, review leaks, and edit feed items. (Default PIN: <code class="text-accent font-bold">2026</code> or <code class="text-accent font-bold">admin</code>)
+            </p>
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <input type="password" id="admin-pin-input" placeholder="Enter Admin PIN..." required
+                    class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-accent">
+                <button type="submit" class="w-full py-3 rounded-xl bg-accent hover:bg-accent/90 text-white font-bold text-sm transition-all shadow-lg">
+                    Access Admin Dashboard
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Modal -->
+    <div id="admin-dashboard-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4 sm:p-6">
+        <div class="bg-cardbg border border-neutral-800 rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-neutral-800 flex items-center justify-between bg-neutral-900/60">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-accent/20 border border-accent/40 flex items-center justify-center text-accent">
+                        <i class="fa-solid fa-shield-halved text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold uppercase text-white">Admin Control Center</h3>
+                        <span class="text-xs text-accent font-semibold">Logged in as Site Owner</span>
+                    </div>
+                </div>
+                <button onclick="closeAdminDashboard()" class="text-neutral-400 hover:text-white p-2 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Dashboard Content Tabs -->
+            <div class="p-6 overflow-y-auto space-y-8 flex-grow">
+                
+                <!-- Pending Submissions Section -->
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-yellow-400"></i> Pending User Submissions 
+                            <span id="pending-count-badge" class="bg-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-black">0</span>
+                        </h4>
+                    </div>
+                    <div id="admin-pending-container" class="space-y-3">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Published Inventory Manager -->
+                <div class="border-t border-neutral-800 pt-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
+                            <i class="fa-solid fa-boxes-stacked text-accent"></i> Active Feed Inventory (<span id="active-count-span">0</span>)
+                        </h4>
+                        <span class="text-xs text-neutral-400">Manage or delete active posts</span>
+                    </div>
+                    <div id="admin-inventory-container" class="space-y-3">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="p-4 sm:p-6 border-t border-neutral-800 bg-neutral-900/50 flex justify-between items-center">
+                <span class="text-xs text-neutral-400">All changes instantly sync to local storage.</span>
+                <button onclick="closeAdminDashboard()" class="px-6 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-bold transition-all">
+                    Exit Admin
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Article Reader Modal -->
+    <div id="article-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-cardbg border border-neutral-800 rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-neutral-800 flex items-center justify-between">
+                <h3 id="modal-article-title" class="text-xl font-bold uppercase text-white">Article Title</h3>
+                <button onclick="closeArticleModal()" class="text-neutral-400 hover:text-white p-2 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-4 text-neutral-300 text-sm leading-relaxed" id="modal-article-body">
+                <!-- Dynamically populated article content -->
+            </div>
+            <div class="p-6 border-t border-neutral-800 bg-neutral-900/50 flex justify-end">
+                <button onclick="closeArticleModal()" class="px-6 py-2.5 rounded-xl bg-accent hover:bg-accent/90 text-white text-xs font-bold transition-all">
+                    Done Reading
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-neutral-800 bg-neutral-950 text-neutral-400 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div class="space-y-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white font-black text-sm">
+                        KV
+                    </div>
+                    <span class="text-lg font-black tracking-wider uppercase text-white">Kicks<span class="text-accent">Vault</span></span>
+                </div>
+                <p class="text-xs text-neutral-500">
+                    The authoritative platform for sneaker culture, real-time release schedules, Chinese & American basketball hoop kicks, and editorial reviews.
+                </p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-sm uppercase mb-3">Categories</h4>
+                <ul class="space-y-2 text-xs">
+                    <li><a href="#releases" onclick="filterReleases('Nike Collabs')" class="hover:text-accent transition-colors">Nike Collabs & Off-White</a></li>
+                    <li><a href="#releases" onclick="filterReleases('Jordan Retros')" class="hover:text-accent transition-colors">Air Jordan Retros</a></li>
+                    <li><a href="#releases" onclick="filterReleases('New Balance')" class="hover:text-accent transition-colors">New Balance Made in USA</a></li>
+                    <li><a href="#releases" onclick="filterReleases('Adidas')" class="hover:text-accent transition-colors">Adidas Yeezy & Samba</a></li>
+                    <li><a href="#releases" onclick="filterReleases('Basketball')" class="hover:text-accent transition-colors">Anta & Li-Ning Basketball</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-sm uppercase mb-3">Quick Links</h4>
+                <ul class="space-y-2 text-xs">
+                    <li><a href="#releases" class="hover:text-accent transition-colors">Release Calendar</a></li>
+                    <li><a href="#" onclick="openSubmitModal(event)" class="hover:text-accent transition-colors">Submit a Drop</a></li>
+                    <li><a href="#blog" class="hover:text-accent transition-colors">Editorial Reviews</a></li>
+                    <li><a href="#" onclick="openWishlistModal(event)" class="hover:text-accent transition-colors">Saved Wishlist</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-sm uppercase mb-3">Connect</h4>
+                <div class="flex items-center gap-3 text-lg">
+                    <a href="#" class="w-9 h-9 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300 hover:text-accent hover:border-neutral-700 transition-all"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="w-9 h-9 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300 hover:text-accent hover:border-neutral-700 transition-all"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="#" class="w-9 h-9 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300 hover:text-accent hover:border-neutral-700 transition-all"><i class="fa-brands fa-discord"></i></a>
+                    <a href="#" class="w-9 h-9 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300 hover:text-accent hover:border-neutral-700 transition-all"><i class="fa-brands fa-tiktok"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-neutral-900 text-center text-xs text-neutral-600">
+            &copy; 2026 KicksVault Inc. All rights reserved. Prototype demonstration.
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Initial Default Releases matching required categories
+        const defaultReleases = [
+            {
+                id: 1,
+                name: "Off-White x Nike Air Force 1 Low 'Brooklyn'",
+                brand: "Nike Collabs",
+                price: "$160",
+                date: "Nov 30, 2026",
+                category: "Nike Collabs",
+                image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&auto=format&fit=crop",
+                badge: "Collab Hot"
+            },
+            {
+                id: 2,
+                name: "Air Jordan 4 Retro 'Bred Reimagined'",
+                brand: "Jordan Retros",
+                price: "$215",
+                date: "Dec 04, 2026",
+                category: "Jordan Retros",
+                image: "https://images.unsplash.com/photo-1552346154-21d32810aba3?w=600&auto=format&fit=crop",
+                badge: "Retro Must-Have"
+            },
+            {
+                id: 3,
+                name: "New Balance 990v6 Made in USA 'Grey'",
+                brand: "New Balance",
+                price: "$200",
+                date: "Dec 08, 2026",
+                category: "New Balance",
+                image: "https://images.unsplash.com/photo-1539185441755-769473a23570?w=600&auto=format&fit=crop",
+                badge: "Teddy Santis"
+            },
+            {
+                id: 4,
+                name: "Adidas AE 3 'Marvel Ant-Man Edition'",
+                brand: "Adidas Basketball",
+                price: "$130",
+                date: "Dec 12, 2026",
+                category: "Basketball",
+                image: "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=600&auto=format&fit=crop",
+                badge: "Hoops US"
+            },
+            {
+                id: 5,
+                name: "Anta KAI 3 Signature Shoe 'Chief Hélà'",
+                brand: "Anta Basketball",
+                price: "$125",
+                date: "Dec 15, 2026",
+                category: "Basketball",
+                image: "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=600&auto=format&fit=crop",
+                badge: "Hoops CN"
+            },
+            {
+                id: 6,
+                name: "Li-Ning Way of Wade 12 'Enlightenment'",
+                brand: "Li-Ning",
+                price: "$225",
+                date: "Dec 22, 2026",
+                category: "Basketball",
+                image: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&auto=format&fit=crop",
+                badge: "Carbon Tech"
+            }
+        ];
+
+        // Local Storage State
+        let releasesData = JSON.parse(localStorage.getItem('kicksvault_releases')) || defaultReleases;
+        let pendingSubmissions = JSON.parse(localStorage.getItem('kicksvault_pending')) || [
+            {
+                id: 101,
+                name: "Travis Scott x Jordan Jumpman Jack 'University Red'",
+                brand: "Nike Collabs",
+                price: "$200",
+                date: "Jan 14, 2027",
+                category: "Nike Collabs",
+                image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&auto=format&fit=crop",
+                badge: "Community Leak"
+            }
+        ];
+        let wishlist = JSON.parse(localStorage.getItem('kicksvault_wishlist')) || [];
+
+        // DOM Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            renderReleases(releasesData);
+            updateWishlistBadge();
+            startCountdown();
+
+            // Search input listener
+            const searchInput = document.getElementById('global-search');
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const filtered = releasesData.filter(item => 
+                    item.name.toLowerCase().includes(query) || 
+                    item.brand.toLowerCase().includes(query) ||
+                    item.category.toLowerCase().includes(query)
+                );
+                renderReleases(filtered);
+            });
+
+            // Mobile menu toggle
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        });
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.add('hidden');
+        }
+
+        // Countdown Timer Logic
+        function startCountdown() {
+            const targetTime = new Date().getTime() + (4 * 24 * 60 * 60 * 1000) + (18 * 60 * 60 * 1000);
+            setInterval(() => {
+                const now = new Date().getTime();
+                const distance = targetTime - now;
+
+                if (distance > 0) {
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    document.getElementById('days').innerText = String(days).padStart(2, '0');
+                    document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+                    document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+                    document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+                }
+            }, 1000);
+        }
+
+        // Render Releases Grid
+        function renderReleases(items) {
+            const grid = document.getElementById('releases-grid');
+            if (items.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center text-neutral-500">
+                        <i class="fa-solid fa-shoe-prints text-4xl mb-3 opacity-40"></i>
+                        <p class="text-sm font-semibold">No sneaker drops found matching your criteria.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = items.map(item => {
+                const isSaved = wishlist.some(w => w.name === item.name);
+                return `
+                    <div class="bg-cardbg rounded-2xl border border-neutral-800 overflow-hidden flex flex-col justify-between group hover:border-neutral-700 transition-all">
+                        <div>
+                            <div class="relative aspect-video overflow-hidden bg-neutral-900">
+                                <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/141414/ff3366?text=Sneaker'">
+                                <span class="absolute top-3 left-3 bg-black/80 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full border border-neutral-800 uppercase tracking-wider">
+                                    ${item.badge}
+                                </span>
+                                <span class="absolute top-3 right-3 bg-accent/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md">
+                                    ${item.price}
+                                </span>
+                            </div>
+                            <div class="p-6">
+                                <div class="flex items-center justify-between text-xs text-neutral-400 mb-2">
+                                    <span class="font-bold text-accent">${item.category}</span>
+                                    <span><i class="fa-regular fa-calendar"></i> ${item.date}</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-white group-hover:text-accent transition-colors line-clamp-2">
+                                    ${item.name}
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="px-6 pb-6 pt-0 flex items-center gap-3">
+                            <button onclick="notifyDrop('${item.name}', '${item.price}')" class="flex-grow py-2.5 px-4 rounded-xl bg-accent hover:bg-accent/90 text-white font-bold text-xs transition-all shadow-md shadow-accent/20 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-bell"></i> Notify Me
+                            </button>
+                            <button onclick="toggleWishlist('${item.name}', '${item.price}', '${item.image}')" class="p-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-800 transition-all" title="Save to Wishlist">
+                                <i class="${isSaved ? 'fa-solid fa-bookmark text-accent' : 'fa-regular fa-bookmark'}"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filter Functionality
+        function filterReleases(category) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if(btn.getAttribute('data-filter') === category) {
+                    btn.className = "filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-accent text-white shadow-md shadow-accent/20";
+                } else {
+                    btn.className = "filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-800";
+                }
+            });
+
+            if (category === 'all') {
+                renderReleases(releasesData);
+            } else {
+                const filtered = releasesData.filter(item => item.category === category);
+                renderReleases(filtered);
+            }
+        }
+
+        // Toast Notifications
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl bg-neutral-900 border border-neutral-800 shadow-2xl text-white text-xs font-semibold animate-bounce transition-all`;
+            const icon = type === 'success' ? '<i class="fa-solid fa-circle-check text-accent text-base"></i>' : '<i class="fa-solid fa-bell text-cyan-400 text-base"></i>';
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function notifyDrop(name, price) {
+            showToast(`Drop alert set for ${name} (${price})! Reminder confirmed.`);
+        }
+
+        // Wishlist System
+        function toggleWishlist(name, price, image) {
+            const index = wishlist.findIndex(w => w.name === name);
+            if (index > -1) {
+                wishlist.splice(index, 1);
+                showToast(`Removed "${name}" from your wishlist.`);
+            } else {
+                wishlist.push({ name, price, image });
+                showToast(`Saved "${name}" to your wishlist!`);
+            }
+            localStorage.setItem('kicksvault_wishlist', JSON.stringify(wishlist));
+            updateWishlistBadge();
+            renderReleases(releasesData);
+        }
+
+        function updateWishlistBadge() {
+            const count = wishlist.length;
+            document.getElementById('wishlist-badge').innerText = count;
+            document.getElementById('mobile-wishlist-badge').innerText = count;
+        }
+
+        function openWishlistModal(e) {
+            if(e) e.preventDefault();
+            const container = document.getElementById('wishlist-items-container');
+            const countText = document.getElementById('wishlist-count-text');
+            countText.innerText = `${wishlist.length} item(s) saved`;
+            
+            if (wishlist.length === 0) {
+                container.innerHTML = `
+                    <div class="py-12 text-center text-neutral-500">
+                        <i class="fa-regular fa-bookmark text-3xl mb-2 opacity-40"></i>
+                        <p class="text-xs">Your wishlist is currently empty.</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = wishlist.map((item, idx) => `
+                    <div class="flex items-center justify-between gap-4 bg-neutral-900 p-3 rounded-2xl border border-neutral-800">
+                        <div class="flex items-center gap-3">
+                            <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='https://placehold.co/100x100/141414/ff3366?text=Drop'">
+                            <div>
+                                <h4 class="text-xs font-bold text-white line-clamp-1">${item.name}</h4>
+                                <span class="text-[10px] text-accent font-semibold">${item.price}</span>
+                            </div>
+                        </div>
+                        <button onclick="removeFromWishlist(${idx})" class="text-neutral-500 hover:text-accent p-2 text-xs">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('wishlist-modal').classList.remove('hidden');
+            document.getElementById('wishlist-modal').classList.add('flex');
+        }
+
+        function removeFromWishlist(index) {
+            wishlist.splice(index, 1);
+            localStorage.setItem('kicksvault_wishlist', JSON.stringify(wishlist));
+            updateWishlistBadge();
+            openWishlistModal();
+            renderReleases(releasesData);
+        }
+
+        function closeWishlistModal() {
+            document.getElementById('wishlist-modal').classList.remove('flex');
+            document.getElementById('wishlist-modal').classList.add('hidden');
+        }
+
+        // Submit Drop Modal
+        function openSubmitModal(e) {
+            if(e) e.preventDefault();
+            document.getElementById('submit-modal').classList.remove('hidden');
+            document.getElementById('submit-modal').classList.add('flex');
+        }
+
+        function closeSubmitModal() {
+            document.getElementById('submit-modal').classList.remove('flex');
+            document.getElementById('submit-modal').classList.add('hidden');
+        }
+
+        function handleUserSubmission(e) {
+            e.preventDefault();
+            const newDrop = {
+                id: Date.now(),
+                name: document.getElementById('sub-name').value,
+                category: document.getElementById('sub-category').value,
+                price: document.getElementById('sub-price').value,
+                date: document.getElementById('sub-date').value,
+                image: document.getElementById('sub-image').value,
+                badge: document.getElementById('sub-badge').value || 'Community Leak',
+                brand: document.getElementById('sub-category').value
+            };
+
+            pendingSubmissions.push(newDrop);
+            localStorage.setItem('kicksvault_pending', JSON.stringify(pendingSubmissions));
+            
+            showToast("Drop submitted successfully! Sent to admin for review.");
+            closeSubmitModal();
+            e.target.reset();
+        }
+
+        // Admin Login & Dashboard Logic
+        function openAdminLoginModal(e) {
+            if(e) e.preventDefault();
+            document.getElementById('admin-login-modal').classList.remove('hidden');
+            document.getElementById('admin-login-modal').classList.add('flex');
+        }
+
+        function closeAdminLoginModal() {
+            document.getElementById('admin-login-modal').classList.remove('flex');
+            document.getElementById('admin-login-modal').classList.add('hidden');
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const pin = document.getElementById('admin-pin-input').value;
+            if (pin === '2026' || pin === 'admin') {
+                closeAdminLoginModal();
+                document.getElementById('admin-pin-input').value = '';
+                showToast("Admin authenticated successfully!");
+                openAdminDashboard();
+            } else {
+                showToast("Invalid PIN! Try '2026' or 'admin'.", 'error');
+            }
+        }
+
+        function openAdminDashboard() {
+            renderAdminDashboardLists();
+            document.getElementById('admin-dashboard-modal').classList.remove('hidden');
+            document.getElementById('admin-dashboard-modal').classList.add('flex');
+        }
+
+        function closeAdminDashboard() {
+            document.getElementById('admin-dashboard-modal').classList.remove('flex');
+            document.getElementById('admin-dashboard-modal').classList.add('hidden');
+        }
+
+        function renderAdminDashboardLists() {
+            // Pending list
+            const pendingContainer = document.getElementById('admin-pending-container');
+            document.getElementById('pending-count-badge').innerText = pendingSubmissions.length;
+
+            if (pendingSubmissions.length === 0) {
+                pendingContainer.innerHTML = `<p class="text-xs text-neutral-500 italic py-2">No pending user submissions waiting for review.</p>`;
+            } else {
+                pendingContainer.innerHTML = pendingSubmissions.map((item, idx) => `
+                    <div class="flex items-center justify-between gap-4 bg-neutral-900 p-3.5 rounded-2xl border border-neutral-800">
+                        <div class="flex items-center gap-3">
+                            <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='https://placehold.co/100x100/141414/ff3366?text=Drop'">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">${item.name}</h4>
+                                <span class="text-[10px] text-yellow-400 font-semibold">${item.category} • ${item.price} • Drop: ${item.date}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="approveSubmission(${idx})" class="px-3 py-1.5 rounded-xl bg-accent text-white font-bold text-xs hover:bg-accent/90 transition-all">
+                                <i class="fa-solid fa-check"></i> Approve
+                            </button>
+                            <button onclick="rejectSubmission(${idx})" class="px-3 py-1.5 rounded-xl bg-neutral-800 text-neutral-300 font-bold text-xs hover:bg-neutral-700 transition-all">
+                                <i class="fa-solid fa-xmark"></i> Reject
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Active inventory list
+            const inventoryContainer = document.getElementById('admin-inventory-container');
+            document.getElementById('active-count-span').innerText = releasesData.length;
+
+            inventoryContainer.innerHTML = releasesData.map((item, idx) => `
+                <div class="flex items-center justify-between gap-4 bg-neutral-900 p-3.5 rounded-2xl border border-neutral-800">
+                    <div class="flex items-center gap-3">
+                        <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='https://placehold.co/100x100/141414/ff3366?text=Drop'">
+                        <div>
+                            <h4 class="text-xs font-bold text-white">${item.name}</h4>
+                            <span class="text-[10px] text-neutral-400">${item.category} • ${item.price}</span>
+                        </div>
+                    </div>
+                    <button onclick="deleteInventoryItem(${idx})" class="p-2 rounded-xl bg-neutral-800 text-neutral-400 hover:text-accent hover:bg-neutral-700 transition-all text-xs" title="Delete Post">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function approveSubmission(index) {
+            const approved = pendingSubmissions.splice(index, 1)[0];
+            releasesData.unshift(approved); // Add to top of active feed
+            
+            localStorage.setItem('kicksvault_pending', JSON.stringify(pendingSubmissions));
+            localStorage.setItem('kicksvault_releases', JSON.stringify(releasesData));
+            
+            showToast(`Approved "${approved.name}"! Now live on calendar.`);
+            renderAdminDashboardLists();
+            renderReleases(releasesData);
+        }
+
+        function rejectSubmission(index) {
+            const rejected = pendingSubmissions.splice(index, 1)[0];
+            localStorage.setItem('kicksvault_pending', JSON.stringify(pendingSubmissions));
+            showToast(`Rejected submission for "${rejected.name}".`);
+            renderAdminDashboardLists();
+        }
+
+        function deleteInventoryItem(index) {
+            const deleted = releasesData.splice(index, 1)[0];
+            localStorage.setItem('kicksvault_releases', JSON.stringify(releasesData));
+            showToast(`Deleted "${deleted.name}" from feed.`);
+            renderAdminDashboardLists();
+            renderReleases(releasesData);
+        }
+
+        // Article Reader Modal
+        const articleContents = {
+            'Way of Wade vs Kai': {
+                title: 'Li-Ning Way of Wade 12 vs Anta KAI 3: The Ultimate Chinese Hoops Showdown',
+                body: `
+                    <p class="mb-4">The rise of Chinese footwear giants Li-Ning and Anta has permanently altered the basketball sneaker landscape. Elite signature models like the Wade 12 and the Anta KAI 3 now rival or exceed American legacy brands in material quality and court traction.</p>
+                    <p class="mb-4"><strong>Li-Ning Way of Wade 12:</strong> Powered by full-length BOOM foam cushioning and a rigid carbon-fiber propulsion plate. It delivers explosive bounce and elite lateral containment for slashing guards.</p>
+                    <p class="mb-4"><strong>Anta KAI 3:</strong> Designed for Kyrie Irving's lightning-quick shiftiness, featuring a rounded outsole radius for smooth multi-directional transitions and a secure lockdown midfoot strap.</p>
+                `
+            },
+            'Jordan Reimagined Series': {
+                title: "Why Jordan Brand's 'Reimagined' Series is Transforming the Collector Market",
+                body: `
+                    <p class="mb-4">Jordan Brand's strategy of revisiting legendary retros with vintage detailing—such as the cracked elephant print on the Jordan 3 and pre-yellowed midsoles on the Jordan 4—has sparked intense debate among purists and new collectors alike.</p>
+                    <p class="mb-4">By delivering out-of-the-box vintage aesthetics, Nike successfully bridges the gap between deadstock rarity and everyday wearable streetwear.</p>
+                `
+            },
+            'New Balance Teddy Santis': {
+                title: 'New Balance Made in USA: How Teddy Santis Redefined Premium Everyday Wear',
+                body: `
+                    <p class="mb-4">Under the creative direction of Aimé Leon Dore founder Teddy Santis, New Balance's Made in USA line has become the pinnacle of smart-casual footwear.</p>
+                    <p class="mb-4">Using rich pigskin suede, artisanal mesh, and understated earth tones, silhouettes like the 990v6 have become fashion week staples.</p>
+                `
+            }
+        };
+
+        function readArticle(key) {
+            const article = articleContents[key] || { title: key, body: "<p>Full editorial breakdown coming soon.</p>" };
+            document.getElementById('modal-article-title').innerText = article.title;
+            document.getElementById('modal-article-body').innerHTML = article.body;
+            document.getElementById('article-modal').classList.remove('hidden');
+            document.getElementById('article-modal').classList.add('flex');
+        }
+
+        function closeArticleModal() {
+            document.getElementById('article-modal').classList.remove('flex');
+            document.getElementById('article-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
